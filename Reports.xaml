@@ -1,0 +1,600 @@
+<Window x:Class="Data_Sanitization.Reports"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Disk Management Tool" Height="850" Width="1350"
+        WindowStartupLocation="CenterScreen" Background="#F4F7F9">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="TealMain"  Color="#00A99D"/>
+        <SolidColorBrush x:Key="TxtDark"   Color="#1F2937"/>
+        <SolidColorBrush x:Key="TxtGrey"   Color="#6B7280"/>
+        <SolidColorBrush x:Key="BorderClr" Color="#E5E7EB"/>
+
+        <!-- Sidebar Button -->
+        <Style x:Key="SideBtn" TargetType="Button">
+            <Setter Property="Background"              Value="Transparent"/>
+            <Setter Property="BorderThickness"         Value="0"/>
+            <Setter Property="Foreground"              Value="#6B7280"/>
+            <Setter Property="FontSize"                Value="13"/>
+            <Setter Property="Padding"                 Value="14,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor"                  Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EBF5F4"/>
+                                <Setter Property="Foreground" Value="#00A99D"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Teal Outline Button (View Full Report) -->
+        <Style x:Key="ViewBtn" TargetType="Button">
+            <Setter Property="Background"      Value="White"/>
+            <Setter Property="Foreground"      Value="#00A99D"/>
+            <Setter Property="BorderBrush"     Value="#00A99D"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Padding"         Value="12,5"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Red Outline Button (Delete Report) -->
+        <Style x:Key="DeleteBtn" TargetType="Button">
+            <Setter Property="Background"      Value="White"/>
+            <Setter Property="Foreground"      Value="#DC2626"/>
+            <Setter Property="BorderBrush"     Value="#FCA5A5"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Padding"         Value="12,5"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══════════════════════  SIDEBAR  ═══════════════════════ -->
+        <Border Grid.Column="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Logo -->
+                <Border Grid.Row="0" Margin="20,28,20,24" HorizontalAlignment="Left">
+                    <Image Source="Assets/Logo.png" Height="85" Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Border>
+
+                <!-- Nav -->
+                <StackPanel Grid.Row="1" Margin="10,0">
+                    <Button Style="{StaticResource SideBtn}" Margin="0,0,0,3" Click="NavHome_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2302;" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Home" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3" Click="NavSanitize_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x1F5B4;" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Disk &amp; Drive Manager" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2665;" FontSize="14" Margin="0,0,10,0"
+                                       VerticalAlignment="Center" Foreground="#9CA3AF"/>
+                            <TextBlock Text="Drive Manager" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- ACTIVE: Reports -->
+                    <Button Style="{StaticResource SideBtn}" Background="#EBF5F4"
+                            Foreground="#00A99D" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2750;" FontSize="14" Margin="0,0,10,0"
+                                       Foreground="#00A99D" VerticalAlignment="Center"/>
+                            <TextBlock Text="Reports" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2713;" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Verification" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2699;" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Settings" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- System Status -->
+                <Border Grid.Row="2" Margin="12,16" Background="#F9FAFB" CornerRadius="12" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="System Status" Foreground="#6B7280" FontSize="10" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <Ellipse Width="8" Height="8" Fill="#10B981" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="All Systems Operational" Foreground="#10B981" FontSize="10"/>
+                        </StackPanel>
+                        <TextBlock Text="Last Check: 2 mins ago" Foreground="#9CA3AF" FontSize="10" Margin="0,3,0,2"/>
+                        <TextBlock Text="Version: 2.1.0" Foreground="#9CA3AF" FontSize="10"/>
+                        <Separator Background="#E5E7EB" Margin="0,10"/>
+                        <Border Background="#00A99D" CornerRadius="7" Padding="0,7">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="&#x1F512;" FontSize="11" Margin="0,0,6,0"/>
+                                <TextBlock Text="Secure &amp; Verified" Foreground="White"
+                                           FontSize="10" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════  MAIN CONTENT  ═══════════════════════ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="68"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Bar (no search, just icons) -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#E5E7EB"
+                    BorderThickness="0,0,0,1" Padding="30,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Border Background="White" Width="36" Height="36" CornerRadius="9"
+                            Margin="0,0,8,0" BorderThickness="1" BorderBrush="#E5E7EB">
+                        <TextBlock Text="&#x1F4CA;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border Background="White" Width="36" Height="36" CornerRadius="9"
+                            Margin="0,0,8,0" BorderThickness="1" BorderBrush="#E5E7EB">
+                        <TextBlock Text="?" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontSize="15" FontWeight="Bold" Foreground="#374151"/>
+                    </Border>
+                    <Border Background="White" Width="36" Height="36" CornerRadius="9"
+                            BorderThickness="1" BorderBrush="#E5E7EB">
+                        <TextBlock Text="&#x1F511;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Content Area -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="30,25,30,30">
+
+                    <!-- Page Header -->
+                    <TextBlock Text="View All" Foreground="#6B7280" FontSize="12"/>
+                    <TextBlock Text="View All Sanitization Reports"
+                               Foreground="#1F2937" FontSize="24" FontWeight="Black" Margin="0,4,0,20"/>
+
+                    <!-- Filter Bar -->
+                    <Grid Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="9"
+                                    Background="White" Margin="0,0,10,0" Height="38">
+                                <ComboBox Background="Transparent" BorderThickness="0"
+                                          VerticalContentAlignment="Center" Padding="12,0"
+                                          FontSize="12" Foreground="#374151" MinWidth="150">
+                                    <ComboBoxItem Content="Filter by Drive" IsSelected="True"/>
+                                    <ComboBoxItem Content="SSD"/>
+                                    <ComboBoxItem Content="HDD"/>
+                                </ComboBox>
+                            </Border>
+                            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="9"
+                                    Background="White" Margin="0,0,10,0" Height="38">
+                                <ComboBox Background="Transparent" BorderThickness="0"
+                                          VerticalContentAlignment="Center" Padding="12,0"
+                                          FontSize="12" Foreground="#374151" MinWidth="165">
+                                    <ComboBoxItem Content="Filter by Method" IsSelected="True"/>
+                                    <ComboBoxItem Content="NIST 800-88"/>
+                                    <ComboBoxItem Content="DoD 5220.22-M"/>
+                                </ComboBox>
+                            </Border>
+                            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="9"
+                                    Background="White" Height="38">
+                                <ComboBox Background="Transparent" BorderThickness="0"
+                                          VerticalContentAlignment="Center" Padding="12,0"
+                                          FontSize="12" Foreground="#374151" MinWidth="175">
+                                    <ComboBoxItem Content="Filter by Date Range" IsSelected="True"/>
+                                    <ComboBoxItem Content="Last 7 Days"/>
+                                    <ComboBoxItem Content="Last 30 Days"/>
+                                    <ComboBoxItem Content="Custom Range"/>
+                                </ComboBox>
+                            </Border>
+                        </StackPanel>
+                        <!-- Search -->
+                        <Border Background="#F9FAFB" Height="38" HorizontalAlignment="Right"
+                                Width="280" CornerRadius="9" BorderThickness="1" BorderBrush="#E5E7EB">
+                            <Grid Margin="12,0">
+                                <TextBlock Text="Search for Drive ID or Report Number"
+                                           VerticalAlignment="Center" Foreground="#9CA3AF" FontSize="11"/>
+                                <TextBlock Text="&#x1F50D;" HorizontalAlignment="Right"
+                                           VerticalAlignment="Center" FontSize="12"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Table Container -->
+                    <Border Background="White" CornerRadius="14" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.05" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+
+                            <!-- Table Header -->
+                            <Border Background="#F9FAFB" CornerRadius="14,14,0,0"
+                                    Padding="20,14,20,14" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="160"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="#" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="Report ID" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12"/>
+                                    <TextBlock Grid.Column="2" Text="Completion Date" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12"/>
+                                    <TextBlock Grid.Column="3" Text="Drive Info (Type/ID)" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12"/>
+                                    <TextBlock Grid.Column="4" Text="Sanitization Method" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12"/>
+                                    <TextBlock Grid.Column="5" Text="Status" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12"/>
+                                    <TextBlock Grid.Column="6" TextWrapping="Wrap"
+                                               Text="S.M.A.R.T. Summary (Post-San)" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12" TextAlignment="Center"/>
+                                    <TextBlock Grid.Column="7" Text="Actions" FontWeight="Bold"
+                                               Foreground="#374151" FontSize="12" TextAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- ── ROW 1 ── SR-00123 SUCCESS -->
+                            <Border Padding="20,16" BorderBrush="#F3F4F6" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="160"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="1" Foreground="#6B7280" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="SR-00123" Foreground="#1F2937"
+                                               FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Jan 15, 2026" Foreground="#374151"
+                                               FontSize="13" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                        <TextBlock Text="SSD, 1TB, C:" Foreground="#374151" FontSize="12"/>
+                                        <TextBlock Text="System Drive" Foreground="#6B7280" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="4" Text="NIST 800-88 Clear" Foreground="#374151"
+                                               FontSize="12" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="18" Height="18" Fill="#10B981" Margin="0,0,7,0">
+                                            <Ellipse.ToolTip>
+                                                <ToolTip Content="Success"/>
+                                            </Ellipse.ToolTip>
+                                        </Ellipse>
+                                        <TextBlock Text="&#x2713;" Foreground="White" FontSize="11"
+                                                   FontWeight="Bold" Margin="-25,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Completed - Success" Foreground="#374151"
+                                                   FontSize="12" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="14/14 checks pass" Foreground="#00A99D"
+                                                   FontSize="12" FontWeight="SemiBold"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="7" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource ViewBtn}" Content="View Full Report" Margin="0,0,0,5"/>
+                                        <Button Style="{StaticResource DeleteBtn}" Content="Delete Report"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- ── ROW 2 ── SR-00124 ERRORS -->
+                            <Border Padding="20,16" BorderBrush="#F3F4F6" BorderThickness="0,0,0,1"
+                                    Background="#FFFBFB">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="160"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="2" Foreground="#6B7280" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="SR-00124" Foreground="#1F2937"
+                                               FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Jan 16, 2026" Foreground="#374151"
+                                               FontSize="13" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                        <TextBlock Text="HDD, 2TB, D:" Foreground="#374151" FontSize="12"/>
+                                        <TextBlock Text="Data Drive" Foreground="#6B7280" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="4" Text="DoD 5220.22-M" Foreground="#374151"
+                                               FontSize="12" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="5" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="18" Height="18" Fill="#DC2626" Margin="0,0,7,0"/>
+                                            <TextBlock Text="&#x2715;" Foreground="White" FontSize="10"
+                                                       FontWeight="Bold" Margin="-25,0,0,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Completed - Errors" Foreground="#DC2626"
+                                                       FontSize="12" Margin="10,0,0,0" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                        <TextBlock Text="2 Bad Sectors Reallocated" Foreground="#9CA3AF"
+                                                   FontSize="11" Margin="25,2,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#x26A0;" Foreground="#F59E0B"
+                                                       FontSize="14" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Warning" Foreground="#F59E0B"
+                                                       FontSize="12" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <StackPanel Grid.Column="7" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource ViewBtn}" Content="View Full Report" Margin="0,0,0,5"/>
+                                        <Button Style="{StaticResource DeleteBtn}" Content="Delete Report"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- ── ROW 3 ── SR-00125 SUCCESS -->
+                            <Border Padding="20,16" BorderBrush="#F3F4F6" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="160"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="3" Foreground="#6B7280" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="SR-00125" Foreground="#1F2937"
+                                               FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Jan 15, 2026" Foreground="#374151"
+                                               FontSize="13" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                        <TextBlock Text="SSD, 1TB, C:" Foreground="#374151" FontSize="12"/>
+                                        <TextBlock Text="System Drive" Foreground="#6B7280" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="4" Text="NIST 800-88 Clear" Foreground="#374151"
+                                               FontSize="12" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="18" Height="18" Fill="#10B981" Margin="0,0,7,0"/>
+                                        <TextBlock Text="&#x2713;" Foreground="White" FontSize="11"
+                                                   FontWeight="Bold" Margin="-25,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Completed - Success" Foreground="#374151"
+                                                   FontSize="12" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="14/14 checks pass" Foreground="#00A99D"
+                                                   FontSize="12" FontWeight="SemiBold"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="7" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource ViewBtn}" Content="View Full Report" Margin="0,0,0,5"/>
+                                        <Button Style="{StaticResource DeleteBtn}" Content="Delete Report"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- ── ROW 4 ── SR-00126 SUCCESS + Warning -->
+                            <Border Padding="20,16" BorderBrush="#F3F4F6" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="160"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="4" Foreground="#6B7280" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="SR-00126" Foreground="#1F2937"
+                                               FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Jan 16, 2026" Foreground="#374151"
+                                               FontSize="13" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                        <TextBlock Text="HDD, 2TB, D:" Foreground="#374151" FontSize="12"/>
+                                        <TextBlock Text="Data Drive" Foreground="#6B7280" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="4" Text="DoD 5220.22-M" Foreground="#374151"
+                                               FontSize="12" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="18" Height="18" Fill="#10B981" Margin="0,0,7,0"/>
+                                        <TextBlock Text="&#x2713;" Foreground="White" FontSize="11"
+                                                   FontWeight="Bold" Margin="-25,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Completed - Success" Foreground="#374151"
+                                                   FontSize="12" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#x26A0;" Foreground="#F59E0B"
+                                                       FontSize="14" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Warning" Foreground="#F59E0B"
+                                                       FontSize="12" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <StackPanel Grid.Column="7" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource ViewBtn}" Content="View Full Report" Margin="0,0,0,5"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- ── ROW 5 ── SR-00127 SUCCESS -->
+                            <Border Padding="20,16" BorderBrush="#F3F4F6" BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="160"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="5" Foreground="#6B7280" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="SR-00127" Foreground="#1F2937"
+                                               FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Jan 16, 2026" Foreground="#374151"
+                                               FontSize="13" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                        <TextBlock Text="HDD, 2TB, D:" Foreground="#374151" FontSize="12"/>
+                                        <TextBlock Text="Bana Drive" Foreground="#6B7280" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="4" Text="DoD 5220.22-M" Foreground="#374151"
+                                               FontSize="12" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="18" Height="18" Fill="#10B981" Margin="0,0,7,0"/>
+                                        <TextBlock Text="&#x2713;" Foreground="White" FontSize="11"
+                                                   FontWeight="Bold" Margin="-25,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Completed - Success" Foreground="#374151"
+                                                   FontSize="12" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="14/14 checks pass" Foreground="#00A99D"
+                                                   FontSize="12" FontWeight="SemiBold"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="7" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource ViewBtn}" Content="View Full Report" Margin="0,0,0,5"/>
+                                        <Button Style="{StaticResource DeleteBtn}" Content="Delete Report"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- ── ROW 6 ── SR-00128 SUCCESS + Warning -->
+                            <Border Padding="20,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="155"/>
+                                        <ColumnDefinition Width="160"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="6" Foreground="#6B7280" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="SR-00128" Foreground="#1F2937"
+                                               FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="Jan 15, 2026" Foreground="#374151"
+                                               FontSize="13" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                        <TextBlock Text="SSD, 1TB, C:" Foreground="#374151" FontSize="12"/>
+                                        <TextBlock Text="System Drive" Foreground="#6B7280" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="4" Text="NIST 800-88" Foreground="#374151"
+                                               FontSize="12" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="18" Height="18" Fill="#10B981" Margin="0,0,7,0"/>
+                                        <TextBlock Text="&#x2713;" Foreground="White" FontSize="11"
+                                                   FontWeight="Bold" Margin="-25,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Completed - Success" Foreground="#374151"
+                                                   FontSize="12" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#x26A0;" Foreground="#F59E0B"
+                                                       FontSize="14" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Warning" Foreground="#F59E0B"
+                                                       FontSize="12" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <StackPanel Grid.Column="7" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource ViewBtn}" Content="View Full Report" Margin="0,0,0,5"/>
+                                        <Button Style="{StaticResource DeleteBtn}" Content="Delete Report"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                        </StackPanel>
+                    </Border>
+                    <!-- End Table Container -->
+
+                    <!-- Footer -->
+                    <Border Margin="0,25,0,0" Padding="0,16,0,0"
+                            BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+                        <Grid>
+                            <TextBlock Text="&#x1F512; Data Sanitization All Rights Reserved 2025"
+                                       Foreground="#9CA3AF" FontSize="11" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Text="ISO 27001" Foreground="#6B7280" FontSize="10"
+                                           FontWeight="Bold" Margin="0,0,18,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="NIST" Foreground="#6B7280" FontSize="10"
+                                           FontWeight="Bold" Margin="0,0,18,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="DoD DSS" Foreground="#6B7280" FontSize="10"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

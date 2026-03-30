@@ -1,0 +1,755 @@
+<Window x:Class="Data_Sanitization.SanitizeDrive"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Disk Management Tool" Height="850" Width="1350"
+        WindowStartupLocation="CenterScreen" Background="#F4F7F9">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="TealMain"  Color="#00A99D"/>
+        <SolidColorBrush x:Key="TxtDark"   Color="#1F2937"/>
+        <SolidColorBrush x:Key="TxtGrey"   Color="#6B7280"/>
+        <SolidColorBrush x:Key="BorderClr" Color="#E5E7EB"/>
+
+        <!-- Card Style -->
+        <Style x:Key="SoftCard" TargetType="Border">
+            <Setter Property="Background"     Value="White"/>
+            <Setter Property="CornerRadius"   Value="14"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.06" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Sidebar Button -->
+        <Style x:Key="SideBtn" TargetType="Button">
+            <Setter Property="Background"              Value="Transparent"/>
+            <Setter Property="BorderThickness"         Value="0"/>
+            <Setter Property="Foreground"              Value="#6B7280"/>
+            <Setter Property="FontSize"                Value="13"/>
+            <Setter Property="Padding"                 Value="14,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor"                  Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EBF5F4"/>
+                                <Setter Property="Foreground" Value="#00A99D"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Teal Outline Button -->
+        <Style x:Key="OutlineBtn" TargetType="Button">
+            <Setter Property="Background"      Value="White"/>
+            <Setter Property="Foreground"      Value="#00A99D"/>
+            <Setter Property="BorderBrush"     Value="#00A99D"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Padding"         Value="12,6"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Teal Filled Button -->
+        <Style x:Key="FilledBtn" TargetType="Button">
+            <Setter Property="Background"      Value="#00A99D"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Padding"         Value="12,6"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Icon Box -->
+        <Style x:Key="IconBox" TargetType="Border">
+            <Setter Property="Width"        Value="50"/>
+            <Setter Property="Height"       Value="50"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background"   Value="#EBF5F4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══════════════════════  SIDEBAR  ═══════════════════════ -->
+        <Border Grid.Column="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Logo -->
+                <Border Grid.Row="0" Margin="20,28,20,24" HorizontalAlignment="Left">
+                    <Image Source="Assets/Logo.png" Height="85" Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Border>
+
+                <!-- Nav -->
+                <StackPanel Grid.Row="1" Margin="10,0">
+                    <Button Style="{StaticResource SideBtn}" Margin="0,0,0,3" Click="NavHome_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2302;" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Home" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- ACTIVE -->
+                    <Button Style="{StaticResource SideBtn}" Background="#EBF5F4"
+                            Foreground="#00A99D" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="16" Height="16" Margin="0,0,10,0" VerticalAlignment="Center">
+                                <Path Data="M12,1 L15,8 H22 L16,12.5 L18,20 L12,16 L6,20 L8,12.5 L2,8 H9 Z"
+                                      Fill="#00A99D" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock Text="Sanitize Drive" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2665;" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="#9CA3AF"/>
+                            <TextBlock Text="Drive Manager" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3" Click="NavReports_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2750;" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Reports" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2713;" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Verification" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SideBtn}" Margin="0,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x2699;" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Settings" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- System Status -->
+                <Border Grid.Row="2" Margin="12,16" Background="#F9FAFB" CornerRadius="12" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="System Status" Foreground="#6B7280" FontSize="10" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <Ellipse Width="8" Height="8" Fill="#10B981" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="All Systems Operational" Foreground="#10B981" FontSize="10"/>
+                        </StackPanel>
+                        <TextBlock Text="Last Check: 2 mins ago" Foreground="#9CA3AF" FontSize="10" Margin="0,3,0,2"/>
+                        <TextBlock Text="Version: 2.1.0" Foreground="#9CA3AF" FontSize="10"/>
+                        <Separator Background="#E5E7EB" Margin="0,10"/>
+                        <Border Background="#00A99D" CornerRadius="7" Padding="0,7">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="&#x1F512;" FontSize="11" Margin="0,0,6,0"/>
+                                <TextBlock Text="Secure &amp; Verified" Foreground="White"
+                                           FontSize="10" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════  MAIN CONTENT  ═══════════════════════ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="68"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Bar -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#E5E7EB"
+                    BorderThickness="0,0,0,1" Padding="30,0">
+                <Grid VerticalAlignment="Center">
+                    <Border Background="#F3F4F6" Width="250" Height="36" CornerRadius="9"
+                            HorizontalAlignment="Left" BorderThickness="1" BorderBrush="#E5E7EB">
+                        <Grid Margin="12,0">
+                            <TextBlock Text="Search (Ctrl+F)" VerticalAlignment="Center"
+                                       Foreground="#9CA3AF" FontSize="12"/>
+                            <TextBlock Text="&#x1F50D;" HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" FontSize="12"/>
+                        </Grid>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Border Background="White" Width="36" Height="36" CornerRadius="9"
+                                Margin="0,0,8,0" BorderThickness="1" BorderBrush="#E5E7EB">
+                            <TextBlock Text="&#x1F4CA;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Background="White" Width="36" Height="36" CornerRadius="9"
+                                Margin="0,0,8,0" BorderThickness="1" BorderBrush="#E5E7EB">
+                            <TextBlock Text="?" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       FontSize="15" FontWeight="Bold" Foreground="#374151"/>
+                        </Border>
+                        <Border Background="White" Width="36" Height="36" CornerRadius="9"
+                                BorderThickness="1" BorderBrush="#E5E7EB">
+                            <TextBlock Text="&#x1F511;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Scrollable Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="30,22,30,30">
+
+                    <!-- Page Header Row -->
+                    <Grid Margin="0,0,0,20">
+                        <StackPanel HorizontalAlignment="Left">
+                            <TextBlock Text="View All" Foreground="#6B7280" FontSize="12"/>
+                            <TextBlock Text="Available Sanitization Methods"
+                                       Foreground="#1F2937" FontSize="24" FontWeight="Black" Margin="0,3,0,5"/>
+                            <TextBlock Text="Compare and select from our list of verified, industry-standard data erasure protocols for various drive types and security requirements."
+                                       Foreground="#6B7280" FontSize="12" TextWrapping="Wrap" MaxWidth="520"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <!-- Filter by Security Level -->
+                            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="9"
+                                    Background="White" Margin="0,0,12,0" Height="38">
+                                <ComboBox Background="Transparent" BorderThickness="0"
+                                          VerticalContentAlignment="Center" Padding="12,0,8,0"
+                                          FontSize="12" Foreground="#374151" MinWidth="185">
+                                    <ComboBoxItem Content="Filter by Security Level" IsSelected="True"/>
+                                    <ComboBoxItem Content="High Security"/>
+                                    <ComboBoxItem Content="Maximum Security"/>
+                                    <ComboBoxItem Content="Ultra Secure"/>
+                                    <ComboBoxItem Content="Basic Security"/>
+                                </ComboBox>
+                            </Border>
+                            <!-- Filter by Method Type -->
+                            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="9"
+                                    Background="White" Height="38">
+                                <ComboBox Background="Transparent" BorderThickness="0"
+                                          VerticalContentAlignment="Center" Padding="12,0,8,0"
+                                          FontSize="12" Foreground="#374151" MinWidth="185">
+                                    <ComboBoxItem Content="Filter by Method Type" IsSelected="True"/>
+                                    <ComboBoxItem Content="Full"/>
+                                    <ComboBoxItem Content="Overwrite"/>
+                                    <ComboBoxItem Content="Multiple Overwrite"/>
+                                    <ComboBoxItem Content="Wipe"/>
+                                    <ComboBoxItem Content="Simple Overwrite"/>
+                                </ComboBox>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- ─────────────────  METHODS GRID  ───────────────── -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- ── CARD 1: NIST 800-88 Rev. 1 ── -->
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource SoftCard}"
+                                Margin="0,0,10,10" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <!-- Icon + Title -->
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#EBF5F4">
+                                        <TextBlock Text="&#x1F3DB;" FontSize="22"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="NIST 800-88 Rev. 1" FontSize="13"
+                                                       FontWeight="Bold" Foreground="#1F2937"/>
+                                            <Border Background="#10B981" CornerRadius="20"
+                                                    Padding="7,2" Margin="7,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="Recommended" FontSize="9"
+                                                           Foreground="White" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Text="Secure Iemunited" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <!-- Description -->
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="Secure Erase for SSDs &amp; Overwrite for HDDs."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <!-- Badge -->
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#00A99D" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#F0FDFA">
+                                        <TextBlock Text="High Security" FontSize="11"
+                                                   Foreground="#00A99D" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <!-- Footer -->
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Full" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 2: DoD 5220.22-M ── -->
+                        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource SoftCard}"
+                                Margin="5,0,5,10" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#EFF6FF">
+                                        <TextBlock Text="&#x1F6E1;" FontSize="22"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="DoD 5220.22-M" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="7-Pass Overwrite" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="U.S. Department of Defense Standard."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#1D4ED8" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#EFF6FF">
+                                        <TextBlock Text="Maximum Security" FontSize="11"
+                                                   Foreground="#1D4ED8" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Multiple Overwrite" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 3: Gutmann Method ── -->
+                        <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource SoftCard}"
+                                Margin="10,0,0,10" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#1F2937">
+                                        <UniformGrid Columns="3" Rows="3" Width="26" Height="26"
+                                                     HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Ellipse Fill="White" Margin="2"/>
+                                            <Ellipse Fill="White" Margin="2"/>
+                                            <Ellipse Fill="White" Margin="2"/>
+                                            <Ellipse Fill="White" Margin="2"/>
+                                            <Ellipse Fill="#00A99D" Margin="2"/>
+                                            <Ellipse Fill="White" Margin="2"/>
+                                            <Ellipse Fill="White" Margin="2"/>
+                                            <Ellipse Fill="White" Margin="2"/>
+                                            <Ellipse Fill="White" Margin="2"/>
+                                        </UniformGrid>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="Gutmann Method" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="35-Pass Overwrite" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="Maximum data destruction method."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#7C3AED" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#F5F3FF">
+                                        <TextBlock Text="Ultra Secure" FontSize="11"
+                                                   Foreground="#7C3AED" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Multiple Overwrite" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 4: US Army AR380-19 ── -->
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource SoftCard}"
+                                Margin="0,0,10,10" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#4B5563">
+                                        <TextBlock Text="&#x2605;" FontSize="24" Foreground="#F5C542"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="US Army AR380-19" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="3-pass overwrite" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="Secure Erase AR380-19 and Overwrite for Arm's HDDs."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#00A99D" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#F0FDFA">
+                                        <TextBlock Text="High Security" FontSize="11"
+                                                   Foreground="#00A99D" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Overwrite" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 5: HMG IS5 ── -->
+                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource SoftCard}"
+                                Margin="5,0,5,10" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#DBEAFE">
+                                        <Grid Width="30" Height="30">
+                                            <Rectangle Fill="#003087" RadiusX="3" RadiusY="3"/>
+                                            <Path Data="M15,3 L15,27 M3,15 L27,15" Stroke="White"
+                                                  StrokeThickness="6" Stretch="None"/>
+                                            <Path Data="M3,3 L27,27 M27,3 L3,27" Stroke="#CF142B"
+                                                  StrokeThickness="3" Stretch="None" Opacity="0.9"/>
+                                        </Grid>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="HMG IS5" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="Infosec Standard 5" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="2-pass wipe for Wipe standard data sanitizations."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#00A99D" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#F0FDFA">
+                                        <TextBlock Text="High Security" FontSize="11"
+                                                   Foreground="#00A99D" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Wipe" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 6: DoD 5220.22-M ECE ── -->
+                        <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource SoftCard}"
+                                Margin="10,0,0,10" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#FEF3C7">
+                                        <TextBlock Text="&#x2699;" FontSize="24" Foreground="#D97706"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="DoD 5220.22-M ECE" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="DoD Extended" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="3-pass wipe for Complex destruction sanitization."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#1D4ED8" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#EFF6FF">
+                                        <TextBlock Text="Maximum Security" FontSize="11"
+                                                   Foreground="#1D4ED8" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Wipe" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 7: AFSSI 5020 ── -->
+                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource SoftCard}"
+                                Margin="0,0,10,0" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#EFF6FF">
+                                        <TextBlock Text="&#x2708;" FontSize="22" Foreground="#1D4ED8"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="AFSSI 5020 (Air Force)" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="3-pass wipe" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="Air Force standard wipe for secure data destruction."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#00A99D" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#F0FDFA">
+                                        <TextBlock Text="High Security" FontSize="11"
+                                                   Foreground="#00A99D" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Wipe" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 8: BSI-VS-2011 ── -->
+                        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource SoftCard}"
+                                Margin="5,0,5,0" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#F3F4F6">
+                                        <TextBlock Text="bsi." FontSize="14" FontWeight="Black"
+                                                   Foreground="#1F2937" HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="BSI-VS-2011" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="German Standard" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="Germanzell-German standard for BSI-certified sanitization."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#00A99D" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#F0FDFA">
+                                        <TextBlock Text="High Security" FontSize="11"
+                                                   Foreground="#00A99D" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Full" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ── CARD 9: Random Data Overwrite ── -->
+                        <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource SoftCard}"
+                                Margin="10,0,0,0" Padding="20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource IconBox}" Background="#F3F4F6">
+                                        <TextBlock Text="&#x2601;" FontSize="20" Foreground="#6B7280"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <TextBlock Text="Random Data Overwrite" FontSize="13"
+                                                   FontWeight="Bold" Foreground="#1F2937"/>
+                                        <TextBlock Text="Simple" Foreground="#9CA3AF" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           Text="Single-pass overwrite for randomized data cloud."
+                                           Foreground="#374151" FontSize="12" Margin="0,0,0,12"/>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border BorderBrush="#9CA3AF" BorderThickness="1"
+                                            CornerRadius="20" Padding="10,4" Background="#F3F4F6">
+                                        <TextBlock Text="Basic Security" FontSize="11"
+                                                   Foreground="#6B7280" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <TextBlock Text="Method Type: Simple Overwrite" FontSize="11"
+                                               Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlineBtn}" Content="Learn More" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource FilledBtn}" Content="Select Method"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                    </Grid>
+                    <!-- End Methods Grid -->
+
+                    <!-- Footer -->
+                    <Border Margin="0,25,0,0" Padding="0,16,0,0"
+                            BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+                        <Grid>
+                            <TextBlock Text="&#x1F512; Data Sanitization All Rights Reserved 2025"
+                                       Foreground="#9CA3AF" FontSize="11" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Text="ISO 27001" Foreground="#6B7280" FontSize="10"
+                                           FontWeight="Bold" Margin="0,0,18,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="NIST" Foreground="#6B7280" FontSize="10"
+                                           FontWeight="Bold" Margin="0,0,18,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="DoD DSS" Foreground="#6B7280" FontSize="10"
+                                           FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
